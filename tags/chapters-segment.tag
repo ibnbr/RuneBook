@@ -45,6 +45,10 @@
 
   <script>
 
+    this.on('mount', () => {
+
+    });
+
     switchTab(evt) {
       evt.preventUpdate = true;
 

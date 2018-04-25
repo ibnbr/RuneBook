@@ -5,8 +5,11 @@ freezer.get().configfile.set({
 	name: settings.get("config.name") + settings.get("config.ext"),
 	cwd: settings.get("config.cwd"),
 	leaguepath: settings.get("leaguepath"),
-	pathdiscovery: settings.get("pathdiscovery")
+	pathdiscovery: settings.get("pathdiscovery"),
+	defaultSource: settings.get("defaultSource")
 });
+
+freezer.get().tab.set({ active: freezer.get().configfile.defaultSource, loaded: false });
 
 var request = require('request');
 
@@ -103,7 +106,7 @@ loadPlugins();
 freezer.on('champion:choose', (champion) => {
 
 	var state = freezer.get();
-
+	
 	var plugin = state.tab.active;
 
 	// Check if champion is already been cached before asking the remote plugin
@@ -121,7 +124,7 @@ freezer.on('champion:choose', (champion) => {
 	plugins[state.tab.active].getPages(champion, (res) => {
 		if(freezer.get().tab.active != state.tab.active) return;
 		freezer.get().current.set({ champion, champ_data: res || {pages: {}} });
-		freezer.get().tab.set({ loaded: true });
+		freezer.get().tab.set({ active: freezer.get().configfile.defaultSource, loaded: false });
 
 		// Cache results obtained from a remote source
 		if(freezer.get().plugins.remote[plugin])
@@ -362,6 +365,12 @@ freezer.on("autochamp:enable", () => {
 
 freezer.on("autochamp:disable", () => {
 	freezer.get().set("autochamp", false);
+});
+
+freezer.on("defaultSource:change", (val) => {
+	freezer.get().configfile.set("defaultSource", val);
+	settings.set("defaultSource", val);
+	freezer.get().tab.set({ active: val, loaded: false });
 });
 
 const LCUConnector = require('lcu-connector');
