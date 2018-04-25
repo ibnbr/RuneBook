@@ -9,7 +9,7 @@ freezer.get().configfile.set({
 	defaultSource: settings.get("defaultSource")
 });
 
-freezer.get().tab.set({ active: freezer.get().configfile.defaultSource, loaded: false });
+freezer.get().tab.set({ active: freezer.get().configfile.defaultSource, loaded: true});
 
 var request = require('request');
 
@@ -124,7 +124,6 @@ freezer.on('champion:choose', (champion) => {
 	plugins[state.tab.active].getPages(champion, (res) => {
 		if(freezer.get().tab.active != state.tab.active) return;
 		freezer.get().current.set({ champion, champ_data: res || {pages: {}} });
-		freezer.get().tab.set({ active: freezer.get().configfile.defaultSource, loaded: false });
 
 		// Cache results obtained from a remote source
 		if(freezer.get().plugins.remote[plugin])
@@ -342,7 +341,7 @@ freezer.on('/lol-champ-select/v1/session:Update', (data) => {
 	var champions = freezer.get().championsinfo;
 	var champion = Object.keys(champions).find((el) => champions[el].key == action.championId);
 	console.log(champion)
-	if(champion !== freezer.get().current.champion) freezer.get().tab.set("active", "local");
+	if(champion !== freezer.get().current.champion) freezer.get().tab.set("active", freezer.get().configfile.defaultSource);
 	freezer.emit('champion:choose', champion);
 });
 
@@ -358,7 +357,7 @@ freezer.on("autochamp:enable", () => {
 		var champions = freezer.get().championsinfo;
 		var champion = Object.keys(champions).find((el) => champions[el].key == action.championId);
 		console.log(champion)
-		if(champion !== freezer.get().current.champion) freezer.get().tab.set("active", "local");
+		if(champion !== freezer.get().current.champion) freezer.get().tab.set("active", freezer.get().configfile.defaultSource);
 		freezer.emit('champion:choose', champion);
 	});
 });
